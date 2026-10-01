@@ -12,9 +12,13 @@
 
 | สิ่งที่ส่ง | ลิงก์ |
 |---|---|
-| โน๊ตบุ๊กอธิบายการทำงาน (Colab) | _จะใส่หลังสร้าง gist_ |
-| สไลด์นำเสนอ (PowerPoint / PDF) | `slides/` ในโปรเจกต์นี้ |
-| เว็บแอปสาธิต | รันในเครื่อง: `streamlit run app.py` (หรือ Streamlit Cloud) |
+| 📓 โน๊ตบุ๊กอธิบายการทำงาน (Colab) | [เปิดใน Colab](https://colab.research.google.com/gist/Nasak16/247492673b9b3a74dd39bd7d442d398c/BookRecommender_Neo4j_007.ipynb) |
+| 📒 ไฟล์ .ipynb สำหรับส่ง | [`notebooks/BookRecommender_Neo4j_007.ipynb`](notebooks/BookRecommender_Neo4j_007.ipynb) |
+| 📊 สไลด์นำเสนอ (PowerPoint / PDF / PNG) | [`slides/`](slides) — 16 สไลด์ |
+| 🖥️ เว็บแอปสาธิต | `py -3.13 -m streamlit run app.py` (ในเครื่อง) |
+| 🗂️ หน้า index รวมงานทุกชิ้น | <https://nasak16.github.io/homework/> |
+
+> ผลการรันในโน๊ตบุ๊กที่ฝังมาในไฟล์ มาจากการรันจริงกับ Neo4j ในเครื่องทดสอบ (เซลล์เชื่อมต่อยังคงเป็นบัญชี Neo4j Aura ของเรา พร้อมรหัสผ่านที่กรอกเองตอนรันบน Colab)
 
 ---
 
