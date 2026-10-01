@@ -1,0 +1,6 @@
+neo4j>=5.14
+streamlit>=1.36
+pandas>=2.0
+matplotlib>=3.8
+networkx>=3.2
+Pillow>=10.0
