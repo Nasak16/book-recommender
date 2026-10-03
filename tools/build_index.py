@@ -63,7 +63,27 @@ ICON = {"phone-recommender": "📱", "book-recommender": "📚", "GrapDB1": "�
         "forest": "🌲", "mental_ML": "🧠", "Boston_ML": "🏠", "DTreeHeart": "❤️",
         "DTwine": "🍷", "DecisionTree_ML3": "🌳", "KNN": "🔵"}
 LATEST = "phone-recommender"
-HUB_REPO = "homework"          # repo ของหน้านี้เอง — ใส่เป็นการ์ดปิดท้าย grid
+HUB_REPO = "homework"
+
+# การ์ดเด่น 4 ใบ (แบบเดียวกับหน้า hub ตัวอย่าง) — ชี้ไปชิ้นงานของเราเอง
+FEATURES = [
+    ("🕸️", "โครงสร้างข้อมูล",
+     "ออกแบบและสร้างฐานข้อมูลกราฟ Neo4j เอง: โหนดผู้ใช้ / รุ่นมือถือ / ยี่ห้อ / ระดับราคา "
+     "ความสัมพันธ์ LIKES + RATED (คะแนนดาว) — ชุดข้อมูลที่สร้างเอง 12 คน × 23 รุ่น × 38 ความสนใจ",
+     f"{APP_REPO}/tree/main/data", "เปิดดูข้อมูล →"),
+    ("📊", "วิเคราะห์ข้อมูล",
+     "โน๊ตบุ๊ก Colab อธิบายวิธีทำทีละขั้น: สร้างกราฟ → เขียน Cypher ถามข้อมูล → ทดลองสูตรแนะนำ "
+     "5 วิธี (Jaccard / โหวตเพื่อน / คะแนนดาว) พร้อมผลรันจริงในเซลล์",
+     COLAB, "เปิดโน๊ตบุ๊ก →"),
+    ("📱", "ระบบแนะนำ (ของเรา)",
+     "เว็บแอป Streamlit ต่อ Neo4j จริง 6 หน้า: ให้คะแนนแล้วระบบแนะนำรุ่นที่ใช่ · ค้นหารุ่น · "
+     "สำรวจกราฟ · แสดงภาพสินค้าจริงในการ์ดทุกใบ (โค้ด + วิธีรันอยู่ใน README)",
+     APP_REPO, "เปิดโค้ด/แอป →"),
+    ("🎨", "สไลด์นำเสนอโปรเจกต์",
+     "สรุปแนวคิด วิธีทำ และผลลัพธ์ทั้งหมดเป็น 16 สไลด์ (.pptx/.pdf) พร้อมหน้าสาธิตการใช้งาน "
+     "สำหรับนำเสนอหน้าชั้นเรียน",
+     f"{APP_REPO}/tree/main/slides", "เปิดสไลด์ →"),
+]          # repo ของหน้านี้เอง — ใส่เป็นการ์ดปิดท้าย grid
 
 
 def repos():
@@ -97,20 +117,22 @@ def main():
             link = f'<a class="btn" href="{r["url"]}" target="_blank" rel="noopener">เปิด repo →</a>'
         else:
             link = '<span class="btn btn-off">repo ส่วนตัว (ให้สิทธิ์เมื่อขอ)</span>'
-        extra = ""
-        if r["latest"]:
-            extra = (f'<div class="extra">'
-                     f'<a href="{COLAB}" target="_blank" rel="noopener">📓 โน๊ตบุ๊ก Colab</a>'
-                     f'<a href="{r["url"]}/tree/main/slides" target="_blank" rel="noopener">'
-                     f'📊 สไลด์ (.pptx/.pdf)</a></div>')
         return f"""    <article class="card" data-cat="{r['cat']}">
       <div class="ic" style="--c:{c}">{ic}</div>
       <div class="tag" style="--c:{c}">{r['cat']}</div>
       <h3>{r['th']}</h3>
       <p>{r['desc']}</p>
       <div class="meta"><code>{r['name']}</code> · {r['lang']} · อัปเดต {r['date']} · {r['vis']}</div>
-{extra}      {link}
+      {link}
     </article>"""
+
+    features = "".join(
+        f'''    <article class="fcard">
+      <div class="ic" style="--c:#38D0FF">{ic}</div>
+      <h3>{t}</h3>
+      <p>{d}</p>
+      <a class="btn" href="{u}" target="_blank" rel="noopener">{label}</a>
+    </article>''' for ic, t, d, u, label in FEATURES)
 
     html = f"""<!DOCTYPE html>
 <html lang="th">
@@ -148,6 +170,18 @@ def main():
   .stat b {{ display:block; font-size:25px; color:var(--cyan);
              font-family:Orbitron,sans-serif; letter-spacing:.5px; }}
   .stat span {{ font-size:12.5px; color:var(--muted); }}
+  .feat-h {{ text-align:center; font-size:19px; margin:34px 0 0; color:#E6F1FF; }}
+  .feat-h span {{ color:var(--cyan); }}
+  .feat {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(252px,1fr)); gap:16px;
+           margin:18px 0 6px; }}
+  .fcard {{ background:linear-gradient(180deg,#0C1424,#0A1120); border:1px solid var(--line);
+            border-radius:18px; padding:20px 18px 16px; display:flex; flex-direction:column; gap:10px;
+            min-height:262px; box-shadow:0 4px 15px rgba(0,120,255,.10);
+            transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease; }}
+  .fcard:hover {{ transform:translateY(-4px); border-color:#00B4FF;
+                  box-shadow:0 10px 28px rgba(0,180,255,.26); }}
+  .fcard .ic {{ width:52px; height:52px; font-size:26px; }}
+  .fcard h3 {{ font-size:19px; }}
   .latest {{ border:1px solid var(--line); border-radius:18px; padding:24px; margin:26px 0 6px;
              background:linear-gradient(135deg,rgba(37,99,235,.16),rgba(5,7,15,.25));
              box-shadow:0 6px 26px rgba(0,140,255,.12); }}
@@ -213,17 +247,10 @@ def main():
 </header>
 
 <div class="wrap">
-  <section class="latest">
-    <h2>⭐ งานล่าสุด: ระบบแนะนำมือถือ (Neo4j + Streamlit)</h2>
-    <p>ระบบแนะนำที่พัฒนาขึ้นเอง ข้อมูลของเราเอง 12 คน × 23 รุ่นมือถือ × 38 ความสนใจ — แสดงภาพสินค้าจริงในผลการแนะนำ
-      พร้อมสัญญาณ “ยี่ห้อ + ระดับราคา”</p>
-    <div class="acts">
-      <a href="{COLAB}" target="_blank" rel="noopener">📓 เปิดโน๊ตบุ๊กใน Colab</a>
-      <a class="ghost" href="{APP_REPO}" target="_blank" rel="noopener">💻 โค้ดระบบ</a>
-      <a class="ghost" href="{APP_REPO}/tree/main/slides" target="_blank" rel="noopener">📊 สไลด์ .pptx / .pdf</a>
-      <a class="ghost" href="{APP_REPO}/tree/main/notebooks" target="_blank" rel="noopener">📒 ไฟล์ .ipynb สำหรับส่ง</a>
-    </div>
-  </section>
+  <h2 class="feat-h">🧩 <span>ชิ้นงานหลักของโปรเจกต์นี้</span> — ระบบแนะนำมือถือ (Neo4j + Streamlit)</h2>
+  <div class="feat">
+{features}
+  </div>
 
   <div class="filters">
     {"".join(f'<button class="chip{" on" if c == "ทั้งหมด" else ""}" data-f="{c}">{c}</button>' for c in cats)}
