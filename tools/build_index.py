@@ -221,9 +221,9 @@ def home_page(st):
       <a class="btn" href="{u}" target="_blank" rel="noopener">{label}</a>
     </article>
 ''' for ic, t, d, u, label in FEATURES)
-    return head("ระบบแนะนำมือถือ · รหัส 007") + f"""
+    return head("ระบบแนะนำมือถือ · รหัส 664245007") + f"""
 <header class="wrap">
-  <div class="kicker">Project Hub · รหัส 007</div>
+  <div class="kicker">Project Hub · รหัส 664245007</div>
   <h1>ระบบแนะนำมือถือ</h1>
   <p class="sub">ศูนย์รวมชิ้นงานของโปรเจกต์ — โครงสร้างข้อมูล · การวิเคราะห์ข้อมูล ·
     ระบบแนะนำที่ใช้งานได้จริง และสไลด์นำเสนอ<br>
@@ -248,7 +248,8 @@ def home_page(st):
 </div>
 
 <footer>
-  จัดทำโดย รหัส 007 · โปรเจกต์อยู่ใน repo
+  จัดทำโดย นาย ณศักดิ์ ฉายแสงรัตน์ (Nasak) · รหัส 664245007 · กลุ่ม 66/43<br>
+  โปรเจกต์อยู่ใน repo
   <a href="{APP_REPO}">Nasak16/phone-recommender</a> · หน้านี้สร้างด้วยสคริปต์ (build_index.py)<br>
   <span class="foot2">📚 <a href="all-work.html">ดูงานอื่น ๆ ทั้งหมด (index รวมทุกงาน)</a></span>
 </footer>
@@ -274,9 +275,9 @@ def all_work_page(rows, cats):
       {link}
     </article>"""
 
-    return head("รวมงานทั้งหมด · รหัส 007") + f"""
+    return head("รวมงานทั้งหมด · รหัส 664245007") + f"""
 <header class="wrap">
-  <div class="kicker">Homework Index · รหัส 007</div>
+  <div class="kicker">Homework Index · รหัส 664245007</div>
   <h1>รวมงานทั้งหมดของเรา</h1>
   <p class="sub">รายการงานทุกชิ้นที่ส่งใน GitHub — กดการ์ดเพื่อเปิด repo ของแต่ละงาน</p>
   <div class="stats">
@@ -298,7 +299,8 @@ def all_work_page(rows, cats):
 </main>
 
 <footer>
-  จัดทำโดย รหัส 007 · หน้านี้อยู่ใน repo <a href="{HUB_REPO_URL}">Nasak16/homework</a>
+  จัดทำโดย นาย ณศักดิ์ ฉายแสงรัตน์ (Nasak) · รหัส 664245007 · กลุ่ม 66/43<br>
+  หน้านี้อยู่ใน repo <a href="{HUB_REPO_URL}">Nasak16/homework</a>
   และสร้างจากข้อมูล repo จริงด้วยสคริปต์ (build_index.py)<br>
   <span class="foot2">🏠 <a href="index.html">กลับหน้าแรกของโปรเจกต์ (ระบบแนะนำมือถือ)</a></span>
 </footer>
@@ -343,7 +345,7 @@ def main():
     with open(os.path.join(DEST, "all-work.html"), "w", encoding="utf-8") as f:
         f.write(all_work_page(rows, cats))
     with open(os.path.join(DEST, "README.md"), "w", encoding="utf-8") as f:
-        f.write("# ระบบแนะนำมือถือ (Neo4j + Streamlit) — รหัส 007\n\n"
+        f.write("# ระบบแนะนำมือถือ (Neo4j + Streamlit)\n\n**ผู้จัดทำ:** นาย ณศักดิ์ ฉายแสงรัตน์ (Nasak) · รหัส 664245007 · กลุ่ม 66/43\n\n"
                 "หน้าเว็บโปรเจกต์ (hub): **https://nasak16.github.io/homework/**\n\n"
                 "- 🌐 เว็บแอปออนไลน์: %s\n"
                 "- 📓 โน๊ตบุ๊ก Colab: %s\n"
