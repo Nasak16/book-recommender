@@ -4,15 +4,22 @@
 
     py -3.13 tools/build_index.py
 ดึงข้อมูล repo สดจาก GitHub API แล้วเขียน index.html + README.md ลงโฟลเดอร์ปลายทาง
+ดีไซน์: hub การ์ด dark-neon (ไอคอน + ชื่อ + คำอธิบาย + ปุ่มเปิดเต็มความกว้าง)
 """
 import json, os, subprocess, sys
 
 DEST = r"C:\Users\USER\Documents\GitHub\homework"
-GID = "247492673b9b3a74dd39bd7d442d398c"
-COLAB = f"https://colab.research.google.com/gist/Nasak16/{GID}/BookRecommender_Neo4j_007.ipynb"
+GID = "8667b219bbff8253335ec78f78b5c79e"
+COLAB = f"https://colab.research.google.com/gist/Nasak16/{GID}/PhoneRecommender_Neo4j_007.ipynb"
+APP_REPO = "https://github.com/Nasak16/phone-recommender"
 
 # คำอธิบาย/หมวดของแต่ละงาน (เขียนเอง — repo บน GitHub ไม่มี description)
 INFO = {
+    "phone-recommender": ("ระบบแนะนำมือถือ (Neo4j + Streamlit)", "ฐานข้อมูล",
+                          "งานนี้: ระบบแนะนำมือถือบนฐานข้อมูลกราฟ Neo4j — 12 คน × 23 รุ่น × 38 ความสนใจ "
+                          "+ 38 คะแนนดาว (RATED) · เว็บแอป 6 หน้า (Dashboard / Recommendations / "
+                          "Phone Search / Like & Rate / Graph Explorer / Admin & Setup) · "
+                          "5 วิธีให้คะแนน · แสดงภาพสินค้าจริงในการ์ดทุกใบ · มีโน๊ตบุ๊ก Colab + สไลด์ 16 หน้า"),
     "book-recommender": ("ระบบแนะนำหนังสือ (Neo4j + Streamlit)", "ฐานข้อมูล",
                          "งานนี้: ระบบแนะนำหนังสือบนฐานข้อมูลกราฟ Neo4j 12 คน × 28 เล่ม "
                          "แสดงภาพปกจริง มีทั้งโน๊ตบุ๊ก Colab และเว็บแอปสาธิต"),
@@ -42,10 +49,21 @@ INFO = {
                          "ฝึกสร้างโมเดลต้นไม้ตัดสินใจและปรับพารามิเตอร์"),
     "KNN": ("KNN: จำแนกข้อมูลด้วยเพื่อนบ้านใกล้สุด", "Machine Learning",
             "ฝึกอัลกอริทึม K-Nearest Neighbors พร้อมเลือกค่า k ที่เหมาะสม"),
+    "homework": ("หน้ารวมงานทั้งหมด (Hub — หน้านี้เอง)", "รวมงาน",
+                 "หน้าเว็บรวมลิงก์งานทุกชิ้นไว้ที่เดียว (GitHub Pages) สร้างจากข้อมูล repo จริง "
+                 "ด้วยสคริปต์ build_index.py อยู่ใน repo นี้"),
 }
-CAT_COLOR = {"ฐานข้อมูล": "#38BDF8", "IoT": "#FF8833", "Machine Learning": "#34D399",
-             "Decision Tree": "#FBBF24"}
-LATEST = "book-recommender"
+CAT_COLOR = {"ฐานข้อมูล": "#38D0FF", "IoT": "#FF8833", "Machine Learning": "#34D399",
+             "Decision Tree": "#FBBF24", "รวมงาน": "#A78BFA"}
+CAT_ICON = {"ฐานข้อมูล": "🗄️", "IoT": "📡", "Machine Learning": "🤖", "Decision Tree": "🌳",
+            "รวมงาน": "🧭"}
+# ไอคอนเฉพาะงาน (ถ้าไม่มีใช้ไอคอนตามหมวด)
+ICON = {"phone-recommender": "📱", "book-recommender": "📚", "GrapDB1": "📚", "grafanaDB": "📈",
+        "iot-security-dashboard": "📡", "titanic-ml-project": "🚢", "web_model": "🎓",
+        "forest": "🌲", "mental_ML": "🧠", "Boston_ML": "🏠", "DTreeHeart": "❤️",
+        "DTwine": "🍷", "DecisionTree_ML3": "🌳", "KNN": "🔵"}
+LATEST = "phone-recommender"
+HUB_REPO = "homework"          # repo ของหน้านี้เอง — ใส่เป็นการ์ดปิดท้าย grid
 
 
 def repos():
@@ -65,30 +83,34 @@ def main():
                      "lang": (r.get("primaryLanguage") or {}).get("name") or "-",
                      "date": (r.get("pushedAt") or "")[:10],
                      "latest": r["name"] == LATEST})
-    rows.sort(key=lambda r: (not r["latest"], r["date"]), reverse=False)
     rows.sort(key=lambda r: r["date"], reverse=True)
-    rows.sort(key=lambda r: not r["latest"])            # งานล่าสุดขึ้นก่อน
+    rows.sort(key=lambda r: r["name"] == HUB_REPO)      # การ์ด hub ปิดท้าย grid
+    rows.sort(key=lambda r: not r["latest"])            # งานล่าสุดขึ้นก่อนสุด
 
     cats = ["ทั้งหมด"] + sorted({r["cat"] for r in rows}, key=lambda c: list(CAT_COLOR).index(c)
                                 if c in CAT_COLOR else 99)
 
     def card(r):
-        link = (f'<a class="btn" href="{r["url"]}" target="_blank" rel="noopener">เปิด repo →</a>'
-                if r["vis"] == "สาธารณะ" else
-                '<span class="btn btn-off">repo ส่วนตัว (ให้สิทธิ์เมื่อขอ)</span>')
+        c = CAT_COLOR.get(r["cat"], "#9FB0CB")
+        ic = ICON.get(r["name"]) or CAT_ICON.get(r["cat"], "📁")
+        if r["vis"] == "สาธารณะ":
+            link = f'<a class="btn" href="{r["url"]}" target="_blank" rel="noopener">เปิด repo →</a>'
+        else:
+            link = '<span class="btn btn-off">repo ส่วนตัว (ให้สิทธิ์เมื่อขอ)</span>'
         extra = ""
         if r["latest"]:
             extra = (f'<div class="extra">'
                      f'<a href="{COLAB}" target="_blank" rel="noopener">📓 โน๊ตบุ๊ก Colab</a>'
                      f'<a href="{r["url"]}/tree/main/slides" target="_blank" rel="noopener">'
-                     f'📊 สไลด์นำเสนอ (.pptx/.pdf)</a></div>')
-        return f"""      <article class="card" data-cat="{r['cat']}">
-        <div class="tag" style="--c:{CAT_COLOR.get(r['cat'], '#9FB0CB')}">{r['cat']}</div>
-        <h3>{r['th']}</h3>
-        <p>{r['desc']}</p>
-        <div class="meta"><code>{r['name']}</code> · {r['lang']} · อัปเดต {r['date']} · {r['vis']}</div>
-{extra}        {link}
-      </article>"""
+                     f'📊 สไลด์ (.pptx/.pdf)</a></div>')
+        return f"""    <article class="card" data-cat="{r['cat']}">
+      <div class="ic" style="--c:{c}">{ic}</div>
+      <div class="tag" style="--c:{c}">{r['cat']}</div>
+      <h3>{r['th']}</h3>
+      <p>{r['desc']}</p>
+      <div class="meta"><code>{r['name']}</code> · {r['lang']} · อัปเดต {r['date']} · {r['vis']}</div>
+{extra}      {link}
+    </article>"""
 
     html = f"""<!DOCTYPE html>
 <html lang="th">
@@ -96,95 +118,125 @@ def main():
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>รวมงานทั้งหมด · รหัส 007</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
-  :root {{ --bg:#0E1626; --card:#172136; --card2:#1E2A45; --line:#2B3A5C; --text:#E9EFFA;
-           --muted:#9FB0CB; --orange:#FF8833; --cyan:#38BDF8; --green:#34D399; --yellow:#FBBF24; }}
+  :root {{ --bg:#05070F; --card:#0B1220; --line:#1B3A63; --text:#E6F1FF; --muted:#8FA8C8;
+           --cyan:#38D0FF; --blue:#2563EB; --violet:#A78BFA; --pink:#F472B6;
+           --orange:#FF8833; --green:#34D399; --yellow:#FBBF24; }}
   * {{ box-sizing:border-box; }}
-  body {{ margin:0; background:var(--bg); color:var(--text);
-          font-family:"Leelawadee UI","Noto Sans Thai",system-ui,sans-serif; line-height:1.55; }}
-  header {{ padding:56px 24px 30px; border-bottom:1px solid var(--line);
-            background:linear-gradient(180deg,#111c30,#0E1626); }}
-  .wrap {{ max-width:1180px; margin:0 auto; }}
-  .kicker {{ color:var(--orange); font-weight:700; font-size:14px; letter-spacing:.5px; }}
-  h1 {{ font-size:40px; margin:8px 0 6px; }}
-  .sub {{ color:var(--muted); font-size:16px; max-width:820px; }}
-  .stats {{ display:flex; gap:14px; flex-wrap:wrap; margin-top:22px; }}
-  .stat {{ background:var(--card); border:1px solid var(--line); border-radius:12px;
-           padding:12px 18px; min-width:130px; }}
-  .stat b {{ display:block; font-size:24px; color:var(--cyan); }}
-  .stat span {{ font-size:12px; color:var(--muted); }}
-  .latest {{ max-width:1180px; margin:28px auto 0; border:1px solid var(--line); border-radius:16px;
-             background:linear-gradient(135deg,#16233c,#131c2e); padding:22px 24px; }}
-  .latest h2 {{ margin:0 0 6px; font-size:22px; color:var(--yellow); }}
-  .latest p {{ margin:0 0 14px; color:var(--muted); }}
-  .latest a {{ color:var(--cyan); text-decoration:none; margin-right:18px; font-weight:600; }}
-  .latest a:hover {{ text-decoration:underline; }}
-  .filters {{ max-width:1180px; margin:30px auto 0; display:flex; gap:10px; flex-wrap:wrap; }}
-  .chip {{ border:1px solid var(--line); background:var(--card); color:var(--muted);
-           padding:8px 15px; border-radius:999px; cursor:pointer; font-size:13.5px; }}
-  .chip.on {{ color:#0E1626; background:var(--orange); border-color:var(--orange); font-weight:700; }}
-  main {{ max-width:1180px; margin:0 auto; padding:22px 24px 70px;
-          display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:18px; }}
-  .card {{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px;
-           display:flex; flex-direction:column; gap:8px; }}
-  .card:hover {{ border-color:#3d5480; }}
+  body {{ margin:0; color:var(--text); line-height:1.6;
+          font-family:"Prompt","Leelawadee UI","Noto Sans Thai",system-ui,sans-serif;
+          background:
+            radial-gradient(1100px 520px at 12% -8%, rgba(56,208,255,.13), transparent 60%),
+            radial-gradient(900px 460px at 88% -12%, rgba(167,139,250,.12), transparent 60%),
+            var(--bg); }}
+  a {{ color:var(--cyan); }}
+  .wrap {{ max-width:1180px; margin:0 auto; padding:0 22px; }}
+  header {{ padding:64px 0 26px; text-align:center; }}
+  .kicker {{ font-family:Orbitron,sans-serif; font-size:12.5px; letter-spacing:3px;
+             color:var(--cyan); text-transform:uppercase; opacity:.9; }}
+  h1 {{ font-size:clamp(30px,4.8vw,54px); line-height:1.18; margin:12px 0 10px; font-weight:800;
+        background:linear-gradient(90deg,#7DE3FF,#38D0FF 38%,#A78BFA 72%,#F472B6);
+        -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }}
+  .sub {{ color:var(--muted); font-size:16.5px; max-width:860px; margin:0 auto; }}
+  .stats {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px;
+            margin:30px 0 6px; }}
+  .stat {{ background:linear-gradient(180deg,#0C1424,#0B1220); border:1px solid var(--line);
+           border-radius:14px; padding:14px 16px; }}
+  .stat b {{ display:block; font-size:25px; color:var(--cyan);
+             font-family:Orbitron,sans-serif; letter-spacing:.5px; }}
+  .stat span {{ font-size:12.5px; color:var(--muted); }}
+  .latest {{ border:1px solid var(--line); border-radius:18px; padding:24px; margin:26px 0 6px;
+             background:linear-gradient(135deg,rgba(37,99,235,.16),rgba(5,7,15,.25));
+             box-shadow:0 6px 26px rgba(0,140,255,.12); }}
+  .latest h2 {{ margin:0 0 8px; font-size:21px; color:var(--yellow); }}
+  .latest p {{ margin:0 0 16px; color:var(--muted); font-size:15px; }}
+  .acts {{ display:flex; gap:12px; flex-wrap:wrap; }}
+  .acts a {{ text-decoration:none; font-weight:700; font-size:13.5px; padding:10px 16px;
+             border-radius:10px; color:#04121F;
+             background:linear-gradient(90deg,var(--blue),var(--cyan)); }}
+  .acts a.ghost {{ background:transparent; color:var(--cyan); border:1px solid var(--line); }}
+  .acts a:hover {{ filter:brightness(1.1); }}
+  .filters {{ display:flex; gap:10px; flex-wrap:wrap; margin:34px 0 4px; }}
+  .chip {{ font-family:inherit; font-size:13.5px; border:1px solid var(--line); background:var(--card);
+           color:var(--muted); padding:8px 16px; border-radius:999px; cursor:pointer; }}
+  .chip:hover {{ border-color:#2C5B93; color:var(--text); }}
+  .chip.on {{ color:#04121F; font-weight:800; border-color:transparent;
+              background:linear-gradient(90deg,var(--blue),var(--cyan)); }}
+  main {{ display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:18px;
+          padding:18px 0 70px; }}
+  .card {{ background:linear-gradient(180deg,#0C1424,#0A1120); border:1px solid var(--line);
+           border-radius:18px; padding:18px 18px 16px; display:flex; flex-direction:column; gap:9px;
+           min-height:266px; box-shadow:0 4px 15px rgba(0,120,255,.10);
+           transition:transform .25s ease, border-color .25s ease, box-shadow .25s ease; }}
+  .card:hover {{ transform:translateY(-4px); border-color:#00B4FF;
+                 box-shadow:0 10px 28px rgba(0,180,255,.26); }}
+  .ic {{ width:48px; height:48px; border-radius:13px; display:grid; place-items:center;
+         font-size:23px; background:color-mix(in srgb,var(--c,#38D0FF) 12%, transparent);
+         border:1px solid color-mix(in srgb,var(--c,#38D0FF) 42%, transparent); }}
   .tag {{ align-self:flex-start; font-size:11.5px; font-weight:700; color:var(--c,#9FB0CB);
           border:1px solid color-mix(in srgb,var(--c,#9FB0CB) 45%, transparent);
           background:color-mix(in srgb,var(--c,#9FB0CB) 12%, transparent);
           padding:3px 10px; border-radius:999px; }}
-  h3 {{ margin:4px 0 0; font-size:18px; }}
+  h3 {{ margin:2px 0 0; font-size:18px; line-height:1.35; }}
   p {{ margin:0; color:var(--muted); font-size:14px; }}
-  .meta {{ font-size:12px; color:#7d8dab; }}
+  .meta {{ font-size:12px; color:#9FB0CB; margin-top:2px; }}
   .meta code {{ color:var(--cyan); }}
   .extra {{ display:flex; gap:14px; flex-wrap:wrap; }}
   .extra a {{ font-size:13px; color:var(--yellow); text-decoration:none; font-weight:600; }}
-  .btn {{ margin-top:auto; align-self:flex-start; background:var(--orange); color:#0E1626;
-          text-decoration:none; font-weight:700; font-size:13.5px; padding:9px 16px;
-          border-radius:9px; }}
-  .btn-off {{ background:var(--card2); color:var(--muted); font-weight:600; }}
+  .extra a:hover {{ text-decoration:underline; }}
+  .btn {{ margin-top:auto; display:block; text-align:center; text-decoration:none; font-weight:800;
+          font-size:13.5px; padding:11px 16px; border-radius:11px; color:#04121F;
+          background:linear-gradient(90deg,var(--blue),var(--cyan));
+          box-shadow:0 4px 14px rgba(56,208,255,.22); }}
+  .btn:hover {{ filter:brightness(1.12); }}
+  .btn-off {{ background:transparent; color:var(--muted); font-weight:600;
+              border:1px solid var(--line); box-shadow:none; }}
   footer {{ border-top:1px solid var(--line); color:var(--muted); font-size:13px;
-            padding:24px; text-align:center; }}
-  a {{ color:var(--cyan); }}
+            padding:26px 22px; text-align:center; }}
 </style>
 </head>
 <body>
-<header>
-  <div class="wrap">
-    <div class="kicker">GITHUB HOMEWORK INDEX · รหัส 007</div>
-    <h1>รวมงานทั้งหมดของเรา</h1>
-    <p class="sub">หน้านี้รวมทุกชิ้นงานที่ส่งใน GitHub — คลิกการ์ดเพื่อเปิด repo ของแต่ละงาน
-      งานล่าสุดคือ “ระบบแนะนำหนังสือ” ซึ่งมีทั้งโน๊ตบุ๊กอธิบายวิธีทำ เว็บแอปสาธิต และสไลด์นำเสนอ</p>
-    <div class="stats">
-      <div class="stat"><b>{len(rows)}</b><span>งานทั้งหมด</span></div>
-      <div class="stat"><b>{len([r for r in rows if r['vis'] == 'สาธารณะ'])}</b><span>repo สาธารณะ</span></div>
-      <div class="stat"><b>{len(cats) - 1}</b><span>หมวดงาน</span></div>
-      <div class="stat"><b>{max(r['date'] for r in rows)}</b><span>อัปเดตล่าสุด</span></div>
-    </div>
+<header class="wrap">
+  <div class="kicker">Homework Hub · รหัส 007</div>
+  <h1>รวมงานทั้งหมดของเรา</h1>
+  <p class="sub">ศูนย์รวมงานที่ส่งใน GitHub ทุกชิ้น — กดการ์ดเพื่อเปิด repo ของแต่ละงาน ·
+    งานล่าสุดคือ “ระบบแนะนำมือถือ (Neo4j + Streamlit)” ซึ่งมีโน๊ตบุ๊กอธิบายวิธีทำ เว็บแอปสาธิต และสไลด์นำเสนอ</p>
+  <div class="stats">
+    <div class="stat"><b>{len(rows)}</b><span>งานทั้งหมด</span></div>
+    <div class="stat"><b>{len([r for r in rows if r['vis'] == 'สาธารณะ'])}</b><span>repo สาธารณะ</span></div>
+    <div class="stat"><b>{len(cats) - 1}</b><span>หมวดงาน</span></div>
+    <div class="stat"><b>{max(r['date'] for r in rows)}</b><span>อัปเดตล่าสุด</span></div>
   </div>
 </header>
 
-<section class="latest">
-  <div class="wrap">
-    <h2>⭐ งานล่าสุด: ระบบแนะนำหนังสือ (Neo4j + Streamlit)</h2>
-    <p>ระบบแนะนำที่พัฒนาขึ้นเอง ข้อมูลของเราเอง 12 คน × 28 เล่ม × 51 ความชอบ — แสดงภาพปกหนังสือจริงในผลการแนะนำ</p>
-    <a href="{COLAB}" target="_blank" rel="noopener">📓 เปิดโน๊ตบุ๊กใน Colab</a>
-    <a href="https://github.com/Nasak16/book-recommender" target="_blank" rel="noopener">💻 โค้ดระบบ</a>
-    <a href="https://github.com/Nasak16/book-recommender/tree/main/slides" target="_blank" rel="noopener">📊 สไลด์ .pptx / .pdf</a>
-    <a href="https://github.com/Nasak16/book-recommender/tree/main/notebooks" target="_blank" rel="noopener">📒 ไฟล์ .ipynb สำหรับส่ง</a>
-  </div>
-</section>
+<div class="wrap">
+  <section class="latest">
+    <h2>⭐ งานล่าสุด: ระบบแนะนำมือถือ (Neo4j + Streamlit)</h2>
+    <p>ระบบแนะนำที่พัฒนาขึ้นเอง ข้อมูลของเราเอง 12 คน × 23 รุ่นมือถือ × 38 ความสนใจ — แสดงภาพสินค้าจริงในผลการแนะนำ
+      พร้อมสัญญาณ “ยี่ห้อ + ระดับราคา”</p>
+    <div class="acts">
+      <a href="{COLAB}" target="_blank" rel="noopener">📓 เปิดโน๊ตบุ๊กใน Colab</a>
+      <a class="ghost" href="{APP_REPO}" target="_blank" rel="noopener">💻 โค้ดระบบ</a>
+      <a class="ghost" href="{APP_REPO}/tree/main/slides" target="_blank" rel="noopener">📊 สไลด์ .pptx / .pdf</a>
+      <a class="ghost" href="{APP_REPO}/tree/main/notebooks" target="_blank" rel="noopener">📒 ไฟล์ .ipynb สำหรับส่ง</a>
+    </div>
+  </section>
 
-<div class="filters">
-  {"".join(f'<button class="chip{" on" if c == "ทั้งหมด" else ""}" data-f="{c}">{c}</button>' for c in cats)}
+  <div class="filters">
+    {"".join(f'<button class="chip{" on" if c == "ทั้งหมด" else ""}" data-f="{c}">{c}</button>' for c in cats)}
+  </div>
 </div>
 
-<main>
+<main class="wrap">
 {chr(10).join(card(r) for r in rows)}
 </main>
 
 <footer>
-  จัดทำโดย รหัส 007 · หน้านี้สร้างจากข้อมูล repo จริงด้วยสคริปต์ (build_index.py) ·
-  ภาพปกหนังสือและข้อมูลจาก Open Library (ฟรี)
+  จัดทำโดย รหัส 007 · หน้านี้อยู่ใน repo <a href="https://github.com/Nasak16/homework">Nasak16/homework</a>
+  และสร้างจากข้อมูล repo จริงด้วยสคริปต์ (build_index.py)
 </footer>
 
 <script>
@@ -206,14 +258,14 @@ def main():
     with open(os.path.join(DEST, "index.html"), "w", encoding="utf-8") as f:
         f.write(html)
     with open(os.path.join(DEST, "README.md"), "w", encoding="utf-8") as f:
-        f.write("# รวมงานทั้งหมด (Homework Index) — รหัส 007\n\n"
-                "หน้าเว็บ index: **https://nasak16.github.io/homework/**\n\n"
+        f.write("# รวมงานทั้งหมด (Homework Hub) — รหัส 007\n\n"
+                "หน้าเว็บ hub: **https://nasak16.github.io/homework/**\n\n"
                 "| งาน | หมวด | repo | อัปเดต |\n|---|---|---|---|\n" +
                 "".join(f"| {r['th']} | {r['cat']} | [{r['name']}]({r['url']}) | {r['date']} |\n"
                         for r in rows) +
-                "\n## งานล่าสุด: ระบบแนะนำหนังสือ (Neo4j + Streamlit)\n\n"
+                "\n## งานล่าสุด: ระบบแนะนำมือถือ (Neo4j + Streamlit)\n\n"
                 f"- โน๊ตบุ๊ก Colab: {COLAB}\n"
-                "- โค้ด + สไลด์: https://github.com/Nasak16/book-recommender\n")
+                f"- โค้ด + สไลด์: {APP_REPO}\n")
     print("เขียน index.html (%d งาน) และ README.md ->" % len(rows), DEST)
     for r in rows:
         print("   %-26s %-20s %s" % (r["name"], r["cat"], r["date"]))
